@@ -1,0 +1,17 @@
+version: '3.1'
+services:
+  rabbitmq:
+    hostname: rabbitmq
+    image: rabbitmq:3.9-management-alpine
+    command: rabbitmq-server
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=This_is_my_secret_phrase
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+
