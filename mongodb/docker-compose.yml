@@ -1,0 +1,15 @@
+version: '3.1'
+services:
+  mongo:
+    container_name: mongo-db
+    image: "bitnami/mongodb:4.4.15"
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGODB_ROOT_USERNAME=root
+      - MONGODB_ROOT_PASSWORD=root
+      - MONGODB_USERNAME=user
+      - MONGODB_PASSWORD=user
+  
+  
+  
