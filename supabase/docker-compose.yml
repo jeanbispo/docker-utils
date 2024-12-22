@@ -26,6 +26,9 @@ services:
     depends_on:
       analytics:
         condition: service_healthy
+    ports:
+      # Pass down internal port because it's set dynamically by other services
+      - 3000:3000
     environment:
       STUDIO_PG_META_URL: http://meta:8080
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -47,33 +50,33 @@ services:
       # Uncomment to use Big Query backend for analytics
       # NEXT_ANALYTICS_BACKEND_PROVIDER: bigquery
 
-  kong:
-    container_name: supabase-kong
-    image: kong:2.8.1
-    restart: unless-stopped
-    # https://unix.stackexchange.com/a/294837
-    entrypoint: bash -c 'eval "echo \"$$(cat ~/temp.yml)\"" > ~/kong.yml && /docker-entrypoint.sh kong docker-start'
-    ports:
-      - ${KONG_HTTP_PORT}:8000/tcp
-      - ${KONG_HTTPS_PORT}:8443/tcp
-    depends_on:
-      analytics:
-        condition: service_healthy
-    environment:
-      KONG_DATABASE: 'off'
-      KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
-      # https://github.com/supabase/cli/issues/14
-      KONG_DNS_ORDER: LAST,A,CNAME
-      KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth
-      KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
-      KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
-      SUPABASE_ANON_KEY: ${ANON_KEY}
-      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
-      DASHBOARD_USERNAME: ${DASHBOARD_USERNAME}
-      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD}
-    volumes:
-      # https://github.com/supabase/supabase/issues/12661
-      - ./volumes/api/kong.yml:/home/kong/temp.yml:ro
+  # kong:
+  #   container_name: supabase-kong
+  #   image: kong:2.8.1
+  #   restart: unless-stopped
+  #   # https://unix.stackexchange.com/a/294837
+  #   entrypoint: bash -c 'eval "echo \"$$(cat ~/temp.yml)\"" > ~/kong.yml && /docker-entrypoint.sh kong docker-start'
+  #   ports:
+  #     - ${KONG_HTTP_PORT}:8000/tcp
+  #     - ${KONG_HTTPS_PORT}:8443/tcp
+  #   depends_on:
+  #     analytics:
+  #       condition: service_healthy
+  #   environment:
+  #     KONG_DATABASE: 'off'
+  #     KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
+  #     # https://github.com/supabase/cli/issues/14
+  #     KONG_DNS_ORDER: LAST,A,CNAME
+  #     KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth
+  #     KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
+  #     KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
+  #     SUPABASE_ANON_KEY: ${ANON_KEY}
+  #     SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+  #     DASHBOARD_USERNAME: ${DASHBOARD_USERNAME}
+  #     DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD}
+  #   volumes:
+  #     # https://github.com/supabase/supabase/issues/12661
+  #     - ./volumes/api/kong.yml:/home/kong/temp.yml:ro
 
   meta:
     container_name: supabase-meta
